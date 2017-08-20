@@ -71,7 +71,7 @@ public final class NetworkUtils {
         return sMoviesUrl;
     }
 
-    public static URL buildUrl(String locationQuery, SortBy sortBy) {
+    public static URL buildUrl(SortBy sortBy) {
         Uri uri = Uri.parse(getMoviesUrl())
                 .buildUpon()
                 .appendQueryParameter(SORT_BY_PREFIX, sortBy.toString())
