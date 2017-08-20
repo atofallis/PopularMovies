@@ -2,9 +2,15 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/sortBy"
+        android:id="@+id/sortByMostPopular"
         android:orderInCategory="1"
-        app:showAsAction="ifRoom"
-        android:title="@string/sortBy">
+        app:showAsAction="never"
+        android:title="@string/sortByMostPopular">
+    </item>
+    <item
+        android:id="@+id/sortByTopRated"
+        android:orderInCategory="2"
+        app:showAsAction="never"
+        android:title="@string/sortByTopRated">
     </item>
 </menu>

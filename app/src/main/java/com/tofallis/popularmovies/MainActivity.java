@@ -27,11 +27,11 @@ public class MainActivity extends AppCompatActivity {
          * do things like set the text of the TextView.
          */
         mTextView = (TextView) findViewById(R.id.textView);
-        loadMovieData();
+        loadMovieData(NetworkUtils.SortBy.POPULARITY_DESC);
     }
 
-    private void loadMovieData() {
-        URL url = NetworkUtils.buildUrl(mTextView.getText().toString());
+    private void loadMovieData(NetworkUtils.SortBy sortBy) {
+        URL url = NetworkUtils.buildUrl(mTextView.getText().toString(), sortBy);
         new NetworkRequest().execute(url);
     }
 
@@ -68,9 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.sortBy) {
+        if(item.getItemId() == R.id.sortByMostPopular) {
             mTextView.setText("");
-            loadMovieData();
+            loadMovieData(NetworkUtils.SortBy.POPULARITY_DESC);
+            return true;
+        } else if(item.getItemId() == R.id.sortByTopRated) {
+            mTextView.setText("");
+            loadMovieData(NetworkUtils.SortBy.RATING_DESC);
             return true;
         }
         return super.onOptionsItemSelected(item);

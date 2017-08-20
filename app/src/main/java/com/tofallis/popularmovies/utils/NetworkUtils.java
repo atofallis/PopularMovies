@@ -33,9 +33,27 @@ import java.util.Scanner;
  */
 public final class NetworkUtils {
 
-    private static final String TAG = NetworkUtils.class.getSimpleName();
+    public enum SortBy {
+        POPULARITY_DESC("popularity.desc"),
+        RATING_DESC("rating.desc");
 
-    private static final String MOVIES_BASE_URL = "https://api.themoviedb.org/3/movie/550?api_key=";
+        String mName;
+        SortBy(String s) {
+            this.mName = s;
+        }
+
+        @Override
+        public String toString() {
+            return mName;
+        }
+    }
+
+    private static final String TAG = NetworkUtils.class.getSimpleName();
+    private static final String SORT_BY_PREFIX = "sort_by";
+
+    private static final String MOVIES_BASE_URL =
+            "https://api.themoviedb.org/3/discover/movie?api_key=";
+
     private static String sMoviesUrl;
 
     public static void init(Context c) {
@@ -46,9 +64,10 @@ public final class NetworkUtils {
         return sMoviesUrl;
     }
 
-    public static URL buildUrl(String locationQuery) {
+    public static URL buildUrl(String locationQuery, SortBy sortBy) {
         Uri uri = Uri.parse(getMoviesUrl())
                 .buildUpon()
+                .appendQueryParameter(SORT_BY_PREFIX, sortBy.toString())
                 .build();
         URL url = null;
         try {
