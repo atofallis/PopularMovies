@@ -17,8 +17,13 @@ package com.tofallis.popularmovies.utils;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import com.tofallis.popularmovies.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +58,8 @@ public final class NetworkUtils {
 
     private static final String MOVIES_BASE_URL =
             "https://api.themoviedb.org/3/discover/movie?api_key=";
+
+    private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
     private static String sMoviesUrl;
 
@@ -105,5 +112,34 @@ public final class NetworkUtils {
         } finally {
             urlConnection.disconnect();
         }
+    }
+
+    public static String[] getMoviePostersFromJson(Context context, String movieJsonStr)
+            throws JSONException {
+
+        final String RESULTS_LIST = "results";
+        final String POSTER_PATH = "poster_path";
+
+        /* String array to hold each day's weather String */
+        String[] moviePosterUrls = null;
+
+        JSONObject movieJson = new JSONObject(movieJsonStr);
+
+        JSONArray movieArray = movieJson.getJSONArray(RESULTS_LIST);
+
+        moviePosterUrls = new String[movieArray.length()];
+
+        for (int i = 0; i < movieArray.length(); i++) {
+            JSONObject movie = movieArray.getJSONObject(i);
+            String img = movie.getString(POSTER_PATH);
+            if(img != null) {
+                Log.d(TAG, "Adding " + img + " to list of posters!");
+                moviePosterUrls[i] = POSTER_BASE_URL + img;
+            } else {
+                Log.e(TAG, "Poster was not found for json: " + movie.toString());
+            }
+        }
+
+        return moviePosterUrls;
     }
 }
