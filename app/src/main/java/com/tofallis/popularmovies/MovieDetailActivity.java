@@ -27,9 +27,9 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReleaseDate = (TextView) findViewById(R.id.release_date);
 
         Picasso.with(this).load(getIntent().getStringExtra(Movie.IMG_URL)).into(mImageView);
-        mOriginalTitle.setText(getIntent().getStringExtra(Movie.TITLE));
-        mOverview.setText(getIntent().getStringExtra(Movie.OVERVIEW));
-        mVoteAverage.setText(getIntent().getStringExtra(Movie.VOTE));
-        mReleaseDate.setText(getIntent().getStringExtra(Movie.RELEASE_DATE));
+        mOriginalTitle.setText(getIntent().getStringExtra(Movie.TITLE) + "\n\n\n");
+        mOverview.setText(getIntent().getStringExtra(Movie.OVERVIEW) + "\n\n\n");
+        mVoteAverage.setText(getIntent().getStringExtra(Movie.VOTE) + "\n\n\n");
+        mReleaseDate.setText(getIntent().getStringExtra(Movie.RELEASE_DATE) + "\n\n\n");
     }
 }
