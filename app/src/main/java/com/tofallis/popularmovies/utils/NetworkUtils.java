@@ -19,6 +19,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.tofallis.popularmovies.Movie;
 import com.tofallis.popularmovies.R;
 
 import org.json.JSONArray;
@@ -114,32 +115,37 @@ public final class NetworkUtils {
         }
     }
 
-    public static String[] getMoviePostersFromJson(Context context, String movieJsonStr)
+    public static Movie[] getMoviesFromJson(Context context, String movieJsonStr)
             throws JSONException {
 
         final String RESULTS_LIST = "results";
-        final String POSTER_PATH = "poster_path";
 
         /* String array to hold each day's weather String */
-        String[] moviePosterUrls = null;
+        Movie[] movies = null;
 
         JSONObject movieJson = new JSONObject(movieJsonStr);
 
         JSONArray movieArray = movieJson.getJSONArray(RESULTS_LIST);
 
-        moviePosterUrls = new String[movieArray.length()];
+        movies = new Movie[movieArray.length()];
 
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject movie = movieArray.getJSONObject(i);
-            String img = movie.getString(POSTER_PATH);
+            String img = movie.getString(Movie.POSTER_PATH);
+
             if(img != null) {
-                Log.d(TAG, "Adding " + img + " to list of posters!");
-                moviePosterUrls[i] = POSTER_BASE_URL + img;
+                movies[i] = new Movie(
+                        POSTER_BASE_URL + img,
+                        movie.getString(Movie.TITLE),
+                        movie.getString(Movie.OVERVIEW),
+                        movie.getString(Movie.VOTE),
+                        movie.getString(Movie.RELEASE_DATE)
+                );
             } else {
                 Log.e(TAG, "Poster was not found for json: " + movie.toString());
             }
         }
 
-        return moviePosterUrls;
+        return movies;
     }
 }

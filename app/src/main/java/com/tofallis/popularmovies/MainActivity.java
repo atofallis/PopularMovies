@@ -1,6 +1,7 @@
 package com.tofallis.popularmovies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -30,8 +32,8 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextView;
     private GridView mGridView;
 
-    // store list of Image URLs from the api query.
-    private List<String> mImageUrls = new ArrayList<String>();
+    // store list of Movies from the api query.
+    private List<Movie> mMovies = new ArrayList<>();
 
     private MasterListAdapter mAdapter;
 
@@ -40,8 +42,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextView = findViewById(R.id.textView);
-        mGridView = findViewById(R.id.imageGridView);
+        mTextView = (TextView) findViewById(R.id.textView);
+        mGridView = (GridView) findViewById(R.id.imageGridView);
         mAdapter = new MasterListAdapter(this);
         mGridView.setAdapter(mAdapter);
 
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
          */
         @Override
         public int getCount() {
-            return mImageUrls.size();
+            return mMovies.size();
         }
 
         @Override
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
                 imageView = (ImageView) convertView;
             }
 
-            String url = mImageUrls.get(position);
+            String url = mMovies.get(position).getImageUrl();
             Picasso.with(MainActivity.this).load(url).into(imageView);
 
             // Set the image resource and return the newly created ImageView
@@ -106,19 +108,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private class NetworkRequest extends AsyncTask<URL, Void, String[]> {
+    private class NetworkRequest extends AsyncTask<URL, Void, Movie[]> {
 
         @Override
-        protected String[] doInBackground(URL... urls) {
+        protected Movie[] doInBackground(URL... urls) {
             URL url = urls[0];
             try {
                 String response = NetworkUtils.getResponseFromHttpUrl(url);
 
-                String[] posterList = NetworkUtils.getMoviePostersFromJson(
+                Movie[] movieList = NetworkUtils.getMoviesFromJson(
                         MainActivity.this,
                         response);
-                mImageUrls = Arrays.asList(posterList);
-                return posterList;
+                mMovies = Arrays.asList(movieList);
+                return movieList;
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -129,13 +131,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String[] data) {
+        protected void onPostExecute(Movie[] data) {
             mTextView.setText("");
             if(data != null) {
 //                for(String poster : data) {
 //                    mTextView.append(poster + "\n\n\n");
 //                }
                 mGridView.setAdapter(mAdapter);
+
+                mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Movie m = mMovies.get(position);
+                        Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
+                        intent.putExtra(Movie.IMG_URL, m.getImageUrl());
+                        intent.putExtra(Movie.TITLE, m.getOriginalTitle());
+                        intent.putExtra(Movie.OVERVIEW, m.getOverview());
+                        intent.putExtra(Movie.RELEASE_DATE, m.getReleaseDate());
+                        intent.putExtra(Movie.VOTE, m.getVoteAverage());
+
+                        startActivity(intent);
+                    }
+                });
+
             } else {
                 mTextView.setText("No data - ensure you are using a valid api key");
             }
