@@ -40,8 +40,8 @@ import java.util.Scanner;
 public final class NetworkUtils {
 
     public enum SortBy {
-        POPULARITY_DESC("popularity.desc"),
-        RATING_DESC("rating.desc");
+        POPULARITY("popular"),
+        RATING("top_rated");
 
         String mName;
         SortBy(String s) {
@@ -55,27 +55,28 @@ public final class NetworkUtils {
     }
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-    private static final String SORT_BY_PREFIX = "sort_by";
+    private static final String API_KEY_PREFIX = "api_key";
 
     private static final String MOVIES_BASE_URL =
-            "https://api.themoviedb.org/3/discover/movie?api_key=";
+            "https://api.themoviedb.org/3/movie";
 
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
-    private static String sMoviesUrl;
+    private static String sApiKey;
 
     public static void init(Context c) {
-        sMoviesUrl = MOVIES_BASE_URL + c.getString(R.string.api_key);
+        sApiKey = c.getString(R.string.api_key);
     }
 
-    public static String getMoviesUrl() {
-        return sMoviesUrl;
+    public static String getApiKey() {
+        return sApiKey;
     }
 
     public static URL buildUrl(SortBy sortBy) {
-        Uri uri = Uri.parse(getMoviesUrl())
+        Uri uri = Uri.parse(MOVIES_BASE_URL)
                 .buildUpon()
-                .appendQueryParameter(SORT_BY_PREFIX, sortBy.toString())
+                .appendPath(sortBy.toString())
+                .appendQueryParameter(API_KEY_PREFIX, getApiKey())
                 .build();
         URL url = null;
         try {
@@ -120,14 +121,9 @@ public final class NetworkUtils {
 
         final String RESULTS_LIST = "results";
 
-        /* String array to hold each day's weather String */
-        Movie[] movies = null;
-
         JSONObject movieJson = new JSONObject(movieJsonStr);
-
         JSONArray movieArray = movieJson.getJSONArray(RESULTS_LIST);
-
-        movies = new Movie[movieArray.length()];
+        Movie[] movies = new Movie[movieArray.length()];
 
         for (int i = 0; i < movieArray.length(); i++) {
             JSONObject movie = movieArray.getJSONObject(i);

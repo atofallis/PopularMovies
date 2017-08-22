@@ -1,6 +1,9 @@
 package com.tofallis.popularmovies;
 
-public class Movie {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Movie implements Parcelable {
 
 
     public static final String POSTER_PATH = "poster_path";
@@ -65,5 +68,19 @@ public class Movie {
 
     public void setReleaseDate(String release_date) {
         this.release_date = release_date;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(getImageUrl());
+        dest.writeString(getOriginalTitle());
+        dest.writeString(getOverview());
+        dest.writeString(getVoteAverage());
+        dest.writeString(getReleaseDate());
     }
 }
