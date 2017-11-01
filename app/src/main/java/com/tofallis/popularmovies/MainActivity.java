@@ -76,9 +76,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Movie[] data) {
             mTextView.setText("");
             if(data != null) {
-//                for(String poster : data) {
-//                    mTextView.append(poster + "\n\n\n");
-//                }
                 mGridView.setAdapter(mAdapter);
 
                 mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

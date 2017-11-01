@@ -68,9 +68,8 @@ public class MasterListAdapter extends BaseAdapter {
         String url = mMovies.get(position).getImageUrl();
         Picasso.with(mContext)
                 .load(url)
-                // TODO - add some placeholder images for better error handling
-//                .placeholder(R.drawable.user_placeholder)
-//                .error(R.drawable.user_placeholder_error)
+                .placeholder(R.drawable.ic_image_black_24dp)
+                .error(R.drawable.ic_broken_image_black_24dp)
                 .into(imageView);
 
         // Return the newly created ImageView
