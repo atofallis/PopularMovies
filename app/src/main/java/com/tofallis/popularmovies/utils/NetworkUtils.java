@@ -19,8 +19,8 @@ import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
+import com.tofallis.popularmovies.BuildConfig;
 import com.tofallis.popularmovies.Movie;
-import com.tofallis.popularmovies.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -56,27 +56,18 @@ public final class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
     private static final String API_KEY_PREFIX = "api_key";
+    private static final String API_KEY = BuildConfig.API_KEY;
 
     private static final String MOVIES_BASE_URL =
             "https://api.themoviedb.org/3/movie";
 
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
-    private static String sApiKey;
-
-    public static void init(Context c) {
-        sApiKey = c.getString(R.string.api_key);
-    }
-
-    public static String getApiKey() {
-        return sApiKey;
-    }
-
     public static URL buildUrl(SortBy sortBy) {
         Uri uri = Uri.parse(MOVIES_BASE_URL)
                 .buildUpon()
                 .appendPath(sortBy.toString())
-                .appendQueryParameter(API_KEY_PREFIX, getApiKey())
+                .appendQueryParameter(API_KEY_PREFIX, API_KEY)
                 .build();
         URL url = null;
         try {

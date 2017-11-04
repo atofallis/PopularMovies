@@ -10,7 +10,11 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        // Please ensure you have a valid API KEY for themoviedb.org in your gradle.properties
+        buildConfigField("String", "API_KEY", API_KEY)
     }
+
     buildTypes {
         release {
             minifyEnabled false
