@@ -1,15 +1,13 @@
 package com.tofallis.popularmovies;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.GridView;
 import android.widget.TextView;
 
 import com.tofallis.popularmovies.utils.NetworkUtils;
@@ -27,10 +25,10 @@ public class MainActivity extends AppCompatActivity {
 
     @BindView(R.id.textView)
     TextView mTextView;
-    @BindView(R.id.imageGridView)
-    GridView mGridView;
+    @BindView(R.id.rvMovies)
+    RecyclerView mMoviePosters;
 
-    private MasterListAdapter mAdapter;
+    private MovieAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +36,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        mAdapter = new MasterListAdapter(this);
-        mGridView.setAdapter(mAdapter);
+        mAdapter = new MovieAdapter(this);
+        mMoviePosters.setAdapter(mAdapter);
+
+        // Set layout manager to position the items
+        mMoviePosters.setLayoutManager(new GridLayoutManager(this, 3));
 
         loadMovieData(NetworkUtils.SortBy.POPULARITY);
     }
@@ -76,23 +77,7 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Movie[] data) {
             mTextView.setText("");
             if(data != null) {
-                mGridView.setAdapter(mAdapter);
-
-                mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Movie m = mAdapter.getMovies().get(position);
-                        Intent intent = new Intent(MainActivity.this, MovieDetailActivity.class);
-                        intent.putExtra(Movie.IMG_URL, m.getImageUrl());
-                        intent.putExtra(Movie.TITLE, m.getOriginalTitle());
-                        intent.putExtra(Movie.OVERVIEW, m.getOverview());
-                        intent.putExtra(Movie.RELEASE_DATE, m.getReleaseDate());
-                        intent.putExtra(Movie.VOTE, m.getVoteAverage());
-
-                        startActivity(intent);
-                    }
-                });
-
+                mAdapter.notifyDataSetChanged();
             } else {
                 mTextView.setText("No data - ensure you are using a valid api key");
             }
