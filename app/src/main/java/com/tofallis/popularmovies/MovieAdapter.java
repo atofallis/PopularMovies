@@ -53,20 +53,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
             // If the view is not recycled, this creates a new ImageView to hold an image
             holder.mPoster = new ImageView(mContext);
             holder.mPoster.setScaleType(ImageView.ScaleType.FIT_CENTER);
-
-            holder.mPoster.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Movie m = getMovies().get(position);
-                    Intent intent = new Intent(mContext, MovieDetailActivity.class);
-                    intent.putExtra(Movie.IMG_URL, m.getImageUrl());
-                    intent.putExtra(Movie.TITLE, m.getOriginalTitle());
-                    intent.putExtra(Movie.OVERVIEW, m.getOverview());
-                    intent.putExtra(Movie.RELEASE_DATE, m.getReleaseDate());
-                    intent.putExtra(Movie.VOTE, m.getVoteAverage());
-                    mContext.startActivity(intent);
-                }
-            });
         }
 
         String url = mMovies.get(position).getImageUrl();
@@ -86,13 +72,29 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
      * Creates a new ImageView for each item referenced by the adapter
      */
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public ImageView mPoster;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mPoster = itemView.findViewById(R.id.moviePoster);
+            mPoster.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Movie m = getMovies().get(position);
+                Intent intent = new Intent(mContext, MovieDetailActivity.class);
+                intent.putExtra(Movie.IMG_URL, m.getImageUrl());
+                intent.putExtra(Movie.TITLE, m.getOriginalTitle());
+                intent.putExtra(Movie.OVERVIEW, m.getOverview());
+                intent.putExtra(Movie.RELEASE_DATE, m.getReleaseDate());
+                intent.putExtra(Movie.VOTE, m.getVoteAverage());
+                mContext.startActivity(intent);
+            }
         }
     }
 }
