@@ -43,14 +43,14 @@ public final class NetworkUtils {
         POPULARITY("popular"),
         RATING("top_rated");
 
-        String mName;
+        String mFilter;
         SortBy(String s) {
-            this.mName = s;
+            this.mFilter = s;
         }
 
         @Override
         public String toString() {
-            return mName;
+            return mFilter;
         }
     }
 
