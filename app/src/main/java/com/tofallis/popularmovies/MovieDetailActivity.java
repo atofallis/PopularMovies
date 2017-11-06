@@ -2,8 +2,10 @@ package com.tofallis.popularmovies;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -14,6 +16,8 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.movieImage)
     ImageView mImageView;
+    @BindView(R.id.toggleFavourite)
+    ToggleButton mToggleFavourite;
     @BindView(R.id.original_title)
     TextView mOriginalTitle;
     @BindView(R.id.overview)
@@ -28,6 +32,13 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
+
+        mToggleFavourite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //
+            }
+        });
 
         Picasso.with(this).load(getIntent().getStringExtra(Movie.IMG_URL)).into(mImageView);
         mOriginalTitle.setText(getIntent().getStringExtra(Movie.TITLE) + "\n\n\n");

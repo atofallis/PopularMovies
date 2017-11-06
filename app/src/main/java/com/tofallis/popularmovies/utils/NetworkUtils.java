@@ -39,21 +39,6 @@ import java.util.Scanner;
  */
 public final class NetworkUtils {
 
-    public enum SortBy {
-        POPULARITY("popular"),
-        RATING("top_rated");
-
-        String mFilter;
-        SortBy(String s) {
-            this.mFilter = s;
-        }
-
-        @Override
-        public String toString() {
-            return mFilter;
-        }
-    }
-
     private static final String TAG = NetworkUtils.class.getSimpleName();
     private static final String API_KEY_PREFIX = "api_key";
     private static final String API_KEY = BuildConfig.API_KEY;
@@ -63,10 +48,10 @@ public final class NetworkUtils {
 
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
-    public static URL buildUrl(SortBy sortBy) {
+    public static URL buildUrl(MovieListDisplay movieListDisplay) {
         Uri uri = Uri.parse(MOVIES_BASE_URL)
                 .buildUpon()
-                .appendPath(sortBy.toString())
+                .appendPath(movieListDisplay.toString())
                 .appendQueryParameter(API_KEY_PREFIX, API_KEY)
                 .build();
         URL url = null;

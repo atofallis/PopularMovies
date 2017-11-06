@@ -1,42 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    >
-<LinearLayout
-    android:layout_height="match_parent"
-    android:layout_width="match_parent"
-    android:orientation="horizontal"
-    >
 
-    <ImageView
-        android:id="@+id/movieImage"
-        android:layout_width="100dp"
-        android:layout_height="120dp"
-        >
-    </ImageView>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/original_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/movieImage"
+            android:layout_width="100dp"
+            android:layout_height="120dp"/>
+
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/release_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/vote_average"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <TextView
-            android:id="@+id/overview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <ToggleButton
+                android:id="@+id/toggleFavourite"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/fav_button"
+                android:contentDescription="Toggle Favourites"
+                android:text=""
+                android:textOff=""
+                android:textOn=""/>
+
+            <TextView
+                android:id="@+id/original_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/release_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/vote_average"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/overview"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/trailer"
+        android:layout_width="100dp"
+        android:layout_height="50dp"
+        android:background="@android:drawable/presence_video_away"
+        android:contentDescription="@string/content_desc_trailer"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/reviews"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
 </LinearLayout>
-</ScrollView>

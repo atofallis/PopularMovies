@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.tofallis.popularmovies.utils.AsyncTaskResult;
 import com.tofallis.popularmovies.utils.MovieListRequest;
 import com.tofallis.popularmovies.utils.NetworkUtils;
+import com.tofallis.popularmovies.utils.MovieListDisplay;
 
 import java.net.URL;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mMoviePosters;
 
     private MovieAdapter mAdapter;
-    NetworkUtils.SortBy mCurrentSort = NetworkUtils.SortBy.POPULARITY;
+    MovieListDisplay mCurrentSort = MovieListDisplay.POPULARITY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(savedInstanceState != null && savedInstanceState.getString(SORT_BY) != null) {
             try {
-                mCurrentSort = NetworkUtils.SortBy.valueOf(savedInstanceState.getString(SORT_BY));
+                mCurrentSort = MovieListDisplay.valueOf(savedInstanceState.getString(SORT_BY));
                 Log.d(TAG, "onCreate. Using mCurrentSort from bundle: " + mCurrentSort.name());
             } catch (IllegalArgumentException e) {
                 Log.e(TAG, "Unexpected sort by value. Exception:" + e.getMessage() );
@@ -79,10 +80,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadMovieData(NetworkUtils.SortBy sortBy) {
-        URL url = NetworkUtils.buildUrl(sortBy);
-        new MovieListRequest(this, new GetMovieList()).execute(url);
-        mCurrentSort = sortBy;
+    private void loadMovieData(MovieListDisplay movieListDisplay) {
+        if(movieListDisplay == MovieListDisplay.FAVOURITES) {
+            // load from contentProvider
+        } else {
+            URL url = NetworkUtils.buildUrl(movieListDisplay);
+            new MovieListRequest(this, new GetMovieList()).execute(url);
+        }
+        mCurrentSort = movieListDisplay;
     }
 
     private class GetMovieList implements AsyncTaskResult<Movie[]>
@@ -110,13 +115,21 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         mTextView.setText("");
-        if(item.getItemId() == R.id.sortByMostPopular) {
-            loadMovieData(NetworkUtils.SortBy.POPULARITY);
-            return true;
-        } else if(item.getItemId() == R.id.sortByTopRated) {
-            loadMovieData(NetworkUtils.SortBy.RATING);
-            return true;
+        switch(item.getItemId()) {
+            case R.id.sortByMostPopular: {
+                loadMovieData(MovieListDisplay.POPULARITY);
+                return true;
+            }
+            case R.id.sortByTopRated: {
+                loadMovieData(MovieListDisplay.RATING);
+                return true;
+            }
+            case R.id.showFavourites: {
+                loadMovieData(MovieListDisplay.FAVOURITES);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        return super.onOptionsItemSelected(item);
     }
 }

@@ -2,4 +2,7 @@
     <string name="app_name">PopularMovies</string>
     <string name="sortByMostPopular">Sort Most Popular</string>
     <string name="sortByTopRated">Sort Top Rated</string>
+    <string name="showFavourites">Load Favourites</string>
+    <string name="reviews">Reviews</string>
+    <string name="content_desc_trailer">Trailer</string>
 </resources>
