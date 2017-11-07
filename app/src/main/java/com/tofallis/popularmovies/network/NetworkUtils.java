@@ -21,6 +21,7 @@ import android.util.Log;
 import com.tofallis.popularmovies.BuildConfig;
 import com.tofallis.popularmovies.data.Movie;
 import com.tofallis.popularmovies.data.MovieListDisplay;
+import com.tofallis.popularmovies.data.Review;
 import com.tofallis.popularmovies.data.Trailer;
 
 import org.json.JSONArray;
@@ -64,11 +65,29 @@ public final class NetworkUtils {
 
         return url;
     }
+
     public static URL getTrailers(int movieId) {
         Uri uri = Uri.parse(MOVIES_BASE_URL)
                 .buildUpon()
                 .appendPath(Integer.toString(movieId))
                 .appendPath("videos")
+                .appendQueryParameter(API_KEY_PREFIX, API_KEY)
+                .build();
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+
+    public static URL getReviews(int movieId) {
+        Uri uri = Uri.parse(MOVIES_BASE_URL)
+                .buildUpon()
+                .appendPath(Integer.toString(movieId))
+                .appendPath("reviews")
                 .appendQueryParameter(API_KEY_PREFIX, API_KEY)
                 .build();
         URL url = null;
@@ -157,5 +176,27 @@ public final class NetworkUtils {
         }
 
         return trailers;
+    }
+
+    public static Review[] getReviewsFromJson(String jsonStr)
+            throws JSONException {
+
+        final String RESULTS_LIST = "results";
+
+        JSONObject reviewJson = new JSONObject(jsonStr);
+        JSONArray reviewArray = reviewJson.getJSONArray(RESULTS_LIST);
+        Review[] reviews = new Review[reviewArray.length()];
+
+        for (int i = 0; i < reviewArray.length(); i++) {
+            JSONObject trailer = reviewArray.getJSONObject(i);
+            reviews[i] = new Review(
+                    trailer.getString(Review.ID),
+                    trailer.getString(Review.AUTHOR),
+                    trailer.getString(Review.CONTENT),
+                    trailer.getString(Review.URL)
+            );
+        }
+
+        return reviews;
     }
 }

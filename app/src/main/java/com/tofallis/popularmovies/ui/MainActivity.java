@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity {
             // load from contentProvider
         } else {
             URL url = NetworkUtils.getMovies(movieListDisplay);
-            new MovieListRequest(this, new GetMovieList()).execute(url);
+            new MovieListRequest(new GetMovieList()).execute(url);
         }
         mCurrentSort = movieListDisplay;
     }

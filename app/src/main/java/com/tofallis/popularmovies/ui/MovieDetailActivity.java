@@ -16,9 +16,11 @@ import com.squareup.picasso.Picasso;
 import com.tofallis.popularmovies.R;
 import com.tofallis.popularmovies.data.FavouritesContract;
 import com.tofallis.popularmovies.data.Movie;
+import com.tofallis.popularmovies.data.Review;
 import com.tofallis.popularmovies.data.Trailer;
 import com.tofallis.popularmovies.network.AsyncTaskResult;
 import com.tofallis.popularmovies.network.NetworkUtils;
+import com.tofallis.popularmovies.network.ReviewListRequest;
 import com.tofallis.popularmovies.network.TrailerListRequest;
 
 import java.net.URL;
@@ -42,6 +44,8 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mVoteAverage;
     @BindView(R.id.release_date)
     TextView mReleaseDate;
+    @BindView(R.id.reviews)
+    TextView mReviews;
 
     int mMovieId;
 
@@ -81,11 +85,12 @@ public class MovieDetailActivity extends AppCompatActivity {
         mReleaseDate.setText(getIntent().getStringExtra(Movie.RELEASE_DATE) + "\n\n\n");
 
         loadTrailerData();
+        loadReviewData();
     }
 
     private void loadTrailerData() {
         URL url = NetworkUtils.getTrailers(mMovieId);
-        new TrailerListRequest(this, new MovieDetailActivity.GetTrailerList()).execute(url);
+        new TrailerListRequest(new MovieDetailActivity.GetTrailerList()).execute(url);
     }
 
     private class GetTrailerList implements AsyncTaskResult<Trailer[]>
@@ -104,6 +109,30 @@ public class MovieDetailActivity extends AppCompatActivity {
             } else {
                 Log.d(this.getClass().getName(), "No movie trailers for this movie");
             }
+        }
+    }
+
+    private void loadReviewData() {
+        URL url = NetworkUtils.getReviews(mMovieId);
+        new ReviewListRequest(new MovieDetailActivity.GetReviewList()).execute(url);
+    }
+
+    private class GetReviewList implements AsyncTaskResult<Review[]>
+    {
+        @Override
+        public void onTaskCompleted(final Review[] result) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Reviews:\n\n");
+            if(result != null) {
+                for(Review review : result) {
+                    sb.append(review.getAuthor() + ":\n\n");
+                    sb.append(review.getContent() + "\n\n");
+                }
+            } else {
+                sb.append("None");
+                Log.d(this.getClass().getName(), "No reviews for this movie");
+            }
+            mReviews.setText(sb.toString());
         }
     }
 }

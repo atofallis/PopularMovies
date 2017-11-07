@@ -2,7 +2,6 @@ package com.tofallis.popularmovies.network;
 
 import android.os.AsyncTask;
 
-import com.tofallis.popularmovies.ui.MainActivity;
 import com.tofallis.popularmovies.data.Movie;
 
 import org.json.JSONException;
@@ -12,11 +11,9 @@ import java.net.URL;
 
 public class MovieListRequest extends AsyncTask<URL, Void, Movie[]> {
 
-    private MainActivity mContext;
     private AsyncTaskResult<Movie[]> mResultsListener;
 
-    public MovieListRequest(MainActivity context, AsyncTaskResult<Movie[]> resultsListener) {
-        mContext = context;
+    public MovieListRequest(AsyncTaskResult<Movie[]> resultsListener) {
         mResultsListener = resultsListener;
     }
 

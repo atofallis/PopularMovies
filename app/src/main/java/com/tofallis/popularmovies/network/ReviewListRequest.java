@@ -2,28 +2,28 @@ package com.tofallis.popularmovies.network;
 
 import android.os.AsyncTask;
 
-import com.tofallis.popularmovies.data.Trailer;
+import com.tofallis.popularmovies.data.Review;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
 
-public class TrailerListRequest extends AsyncTask<URL, Void, Trailer[]> {
+public class ReviewListRequest extends AsyncTask<URL, Void, Review[]> {
 
-    private AsyncTaskResult<Trailer[]> mResultsListener;
+    private AsyncTaskResult<Review[]> mResultsListener;
 
-    public TrailerListRequest(AsyncTaskResult<Trailer[]> resultsListener) {
+    public ReviewListRequest(AsyncTaskResult<Review[]> resultsListener) {
         mResultsListener = resultsListener;
     }
 
     @Override
-    protected Trailer[] doInBackground(URL... urls) {
+    protected Review[] doInBackground(URL... urls) {
         URL url = urls[0];
         try {
             String response = NetworkUtils.getResponseFromHttpUrl(url);
-            Trailer[] trailerList = NetworkUtils.getTrailersFromJson(response);
-            return trailerList;
+            Review[] reviewList = NetworkUtils.getReviewsFromJson(response);
+            return reviewList;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -34,7 +34,7 @@ public class TrailerListRequest extends AsyncTask<URL, Void, Trailer[]> {
     }
 
     @Override
-    protected void onPostExecute(Trailer[] data) {
+    protected void onPostExecute(Review[] data) {
         super.onPostExecute(data);
         mResultsListener.onTaskCompleted(data);
     }
