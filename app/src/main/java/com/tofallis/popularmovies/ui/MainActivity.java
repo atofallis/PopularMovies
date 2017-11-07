@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         if(movieListDisplay == MovieListDisplay.FAVOURITES) {
             // load from contentProvider
         } else {
-            URL url = NetworkUtils.buildUrl(movieListDisplay);
+            URL url = NetworkUtils.getMovies(movieListDisplay);
             new MovieListRequest(this, new GetMovieList()).execute(url);
         }
         mCurrentSort = movieListDisplay;

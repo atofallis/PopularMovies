@@ -1,32 +1,32 @@
 package com.tofallis.popularmovies.network;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 
-import com.tofallis.popularmovies.ui.MainActivity;
-import com.tofallis.popularmovies.data.Movie;
+import com.tofallis.popularmovies.data.Trailer;
 
 import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
 
-public class MovieListRequest extends AsyncTask<URL, Void, Movie[]> {
+public class TrailerListRequest extends AsyncTask<URL, Void, Trailer[]> {
 
-    private MainActivity mContext;
-    private AsyncTaskResult<Movie[]> mResultsListener;
+    private Activity mContext;
+    private AsyncTaskResult<Trailer[]> mResultsListener;
 
-    public MovieListRequest(MainActivity context, AsyncTaskResult<Movie[]> resultsListener) {
+    public TrailerListRequest(Activity context, AsyncTaskResult<Trailer[]> resultsListener) {
         mContext = context;
         mResultsListener = resultsListener;
     }
 
     @Override
-    protected Movie[] doInBackground(URL... urls) {
+    protected Trailer[] doInBackground(URL... urls) {
         URL url = urls[0];
         try {
             String response = NetworkUtils.getResponseFromHttpUrl(url);
-            Movie[] movieList = NetworkUtils.getMoviesFromJson(response);
-            return movieList;
+            Trailer[] trailerList = NetworkUtils.getTrailersFromJson(response);
+            return trailerList;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -37,7 +37,7 @@ public class MovieListRequest extends AsyncTask<URL, Void, Movie[]> {
     }
 
     @Override
-    protected void onPostExecute(Movie[] data) {
+    protected void onPostExecute(Trailer[] data) {
         super.onPostExecute(data);
         mResultsListener.onTaskCompleted(data);
     }

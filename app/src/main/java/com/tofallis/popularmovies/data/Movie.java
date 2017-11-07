@@ -5,29 +5,56 @@ import android.os.Parcelable;
 
 public class Movie implements Parcelable {
 
-
     public static final String POSTER_PATH = "poster_path";
 
     // used for passing around the full image URL.
     public static final String IMG_URL = "img_url";
 
+    public static final String ID = "id";
     public static final String TITLE = "original_title";
     public static final String OVERVIEW = "overview";
     public static final String VOTE = "vote_average";
     public static final String RELEASE_DATE = "release_date";
 
+    int id;
     String imageUrl;
     String original_title;
     String overview;
     String vote_average;
     String release_date;
 
-    public Movie(String imgUrl, String title, String overview, String vote, String release) {
+    public Movie(int id, String imgUrl, String title, String overview, String vote, String release) {
+        this.id = id;
         this.imageUrl = imgUrl;
         this.original_title = title;
         this.overview = overview;
         this.vote_average = vote;
         this.release_date = release;
+    }
+
+    protected Movie(Parcel in) {
+        id = in.readInt();
+        imageUrl = in.readString();
+        original_title = in.readString();
+        overview = in.readString();
+        vote_average = in.readString();
+        release_date = in.readString();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
+
+    public int getId() {
+        return id;
     }
 
     public String getImageUrl() {
@@ -77,6 +104,7 @@ public class Movie implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(getId());
         dest.writeString(getImageUrl());
         dest.writeString(getOriginalTitle());
         dest.writeString(getOverview());

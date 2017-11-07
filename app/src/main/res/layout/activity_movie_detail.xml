@@ -58,6 +58,7 @@
         android:layout_width="100dp"
         android:layout_height="50dp"
         android:background="@android:drawable/presence_video_away"
+        android:visibility="gone"
         android:contentDescription="@string/content_desc_trailer"/>
 
     <TextView

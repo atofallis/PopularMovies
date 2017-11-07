@@ -15,13 +15,13 @@
  */
 package com.tofallis.popularmovies.network;
 
-import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.tofallis.popularmovies.BuildConfig;
 import com.tofallis.popularmovies.data.Movie;
 import com.tofallis.popularmovies.data.MovieListDisplay;
+import com.tofallis.popularmovies.data.Trailer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -49,10 +49,26 @@ public final class NetworkUtils {
 
     private static final String POSTER_BASE_URL = "http://image.tmdb.org/t/p/w185/";
 
-    public static URL buildUrl(MovieListDisplay movieListDisplay) {
+    public static URL getMovies(MovieListDisplay movieListDisplay) {
         Uri uri = Uri.parse(MOVIES_BASE_URL)
                 .buildUpon()
                 .appendPath(movieListDisplay.toString())
+                .appendQueryParameter(API_KEY_PREFIX, API_KEY)
+                .build();
+        URL url = null;
+        try {
+            url = new URL(uri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
+        return url;
+    }
+    public static URL getTrailers(int movieId) {
+        Uri uri = Uri.parse(MOVIES_BASE_URL)
+                .buildUpon()
+                .appendPath(Integer.toString(movieId))
+                .appendPath("videos")
                 .appendQueryParameter(API_KEY_PREFIX, API_KEY)
                 .build();
         URL url = null;
@@ -93,7 +109,7 @@ public final class NetworkUtils {
         }
     }
 
-    public static Movie[] getMoviesFromJson(Context context, String movieJsonStr)
+    public static Movie[] getMoviesFromJson(String movieJsonStr)
             throws JSONException {
 
         final String RESULTS_LIST = "results";
@@ -108,6 +124,7 @@ public final class NetworkUtils {
 
             if(img != null) {
                 movies[i] = new Movie(
+                        movie.getInt(Movie.ID),
                         POSTER_BASE_URL + img,
                         movie.getString(Movie.TITLE),
                         movie.getString(Movie.OVERVIEW),
@@ -120,5 +137,25 @@ public final class NetworkUtils {
         }
 
         return movies;
+    }
+
+    public static Trailer[] getTrailersFromJson(String trailerJsonStr)
+            throws JSONException {
+
+        final String RESULTS_LIST = "results";
+
+        JSONObject trailerJson = new JSONObject(trailerJsonStr);
+        JSONArray trailerArray = trailerJson.getJSONArray(RESULTS_LIST);
+        Trailer[] trailers = new Trailer[trailerArray.length()];
+
+        for (int i = 0; i < trailerArray.length(); i++) {
+            JSONObject trailer = trailerArray.getJSONObject(i);
+            trailers[i] = new Trailer(
+                    trailer.getString(Trailer.ID),
+                    trailer.getString(Trailer.KEY)
+            );
+        }
+
+        return trailers;
     }
 }
