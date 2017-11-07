@@ -1,4 +1,4 @@
-package com.tofallis.popularmovies;
+package com.tofallis.popularmovies.data;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.squareup.picasso.Picasso;
+import com.tofallis.popularmovies.R;
+import com.tofallis.popularmovies.ui.MovieDetailActivity;
 
 import java.util.ArrayList;
 import java.util.List;

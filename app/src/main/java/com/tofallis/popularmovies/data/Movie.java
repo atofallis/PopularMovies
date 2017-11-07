@@ -1,4 +1,4 @@
-package com.tofallis.popularmovies;
+package com.tofallis.popularmovies.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.tofallis.popularmovies.utils;
+package com.tofallis.popularmovies.network;
 
 import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
 import com.tofallis.popularmovies.BuildConfig;
-import com.tofallis.popularmovies.Movie;
+import com.tofallis.popularmovies.data.Movie;
+import com.tofallis.popularmovies.data.MovieListDisplay;
 
 import org.json.JSONArray;
 import org.json.JSONException;

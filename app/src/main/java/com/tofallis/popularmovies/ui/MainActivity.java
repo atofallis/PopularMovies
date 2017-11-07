@@ -1,4 +1,4 @@
-package com.tofallis.popularmovies;
+package com.tofallis.popularmovies.ui;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -11,10 +11,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-import com.tofallis.popularmovies.utils.AsyncTaskResult;
-import com.tofallis.popularmovies.utils.MovieListRequest;
-import com.tofallis.popularmovies.utils.NetworkUtils;
-import com.tofallis.popularmovies.utils.MovieListDisplay;
+import com.tofallis.popularmovies.data.Movie;
+import com.tofallis.popularmovies.data.MovieAdapter;
+import com.tofallis.popularmovies.R;
+import com.tofallis.popularmovies.network.AsyncTaskResult;
+import com.tofallis.popularmovies.network.MovieListRequest;
+import com.tofallis.popularmovies.network.NetworkUtils;
+import com.tofallis.popularmovies.data.MovieListDisplay;
 
 import java.net.URL;
 import java.util.Arrays;

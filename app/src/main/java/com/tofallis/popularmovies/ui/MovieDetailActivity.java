@@ -1,13 +1,19 @@
-package com.tofallis.popularmovies;
+package com.tofallis.popularmovies.ui;
 
+import android.content.ContentValues;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
+import com.tofallis.popularmovies.R;
+import com.tofallis.popularmovies.data.FavouritesContract;
+import com.tofallis.popularmovies.data.Movie;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,7 +42,21 @@ public class MovieDetailActivity extends AppCompatActivity {
         mToggleFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(FavouritesContract.FavouritesTable.COL_MOVIE_ID, 1);
+                Uri uri;
+                if (((ToggleButton)view).isChecked()) {
+                    uri = getContentResolver().insert(FavouritesContract.CONTENT_URI, contentValues);
+                    if(uri != null) {
+                        Toast.makeText(getBaseContext(), "Added to favourites", Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    uri = FavouritesContract.CONTENT_URI.buildUpon().appendPath("1").build();
+                    int deleted = getContentResolver().delete(uri, null, null);
+                    if(deleted > 0) {
+                        Toast.makeText(getBaseContext(), "Removed from favourites", Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
 

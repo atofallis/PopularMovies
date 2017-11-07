@@ -1,4 +1,4 @@
-package com.tofallis.popularmovies.utils;
+package com.tofallis.popularmovies.data;
 
 public enum MovieListDisplay {
     POPULARITY("popular"),

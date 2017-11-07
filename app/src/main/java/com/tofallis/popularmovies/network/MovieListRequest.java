@@ -1,9 +1,9 @@
-package com.tofallis.popularmovies.utils;
+package com.tofallis.popularmovies.network;
 
 import android.os.AsyncTask;
 
-import com.tofallis.popularmovies.MainActivity;
-import com.tofallis.popularmovies.Movie;
+import com.tofallis.popularmovies.ui.MainActivity;
+import com.tofallis.popularmovies.data.Movie;
 
 import org.json.JSONException;
 
