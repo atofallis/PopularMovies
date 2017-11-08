@@ -1,6 +1,7 @@
 package com.tofallis.popularmovies.ui;
 
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,16 +12,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.tofallis.popularmovies.R;
+import com.tofallis.popularmovies.data.FavouritesContract;
 import com.tofallis.popularmovies.data.Movie;
 import com.tofallis.popularmovies.data.MovieAdapter;
-import com.tofallis.popularmovies.R;
+import com.tofallis.popularmovies.data.MovieListDisplay;
 import com.tofallis.popularmovies.network.AsyncTaskResult;
 import com.tofallis.popularmovies.network.MovieListRequest;
 import com.tofallis.popularmovies.network.NetworkUtils;
-import com.tofallis.popularmovies.data.MovieListDisplay;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -86,11 +90,44 @@ public class MainActivity extends AppCompatActivity {
     private void loadMovieData(MovieListDisplay movieListDisplay) {
         if(movieListDisplay == MovieListDisplay.FAVOURITES) {
             // load from contentProvider
+            getFavourites();
         } else {
             URL url = NetworkUtils.getMovies(movieListDisplay);
             new MovieListRequest(new GetMovieList()).execute(url);
         }
         mCurrentSort = movieListDisplay;
+    }
+
+    private void getFavourites() {
+        Cursor c = getContentResolver().query(FavouritesContract.CONTENT_URI,
+                null,
+                null,
+                null,
+                null);
+        List<Movie> favourites = new ArrayList<>();
+
+        if(c!=null) {
+            int id = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_MOVIE_ID);
+            int img = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_IMG_URL);
+            int title = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_TITLE);
+            int overview = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_OVERVIEW);
+            int vote = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_VOTE);
+            int releaseDate = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_RELEASE_DATE);
+
+            while (c.moveToNext()) {
+                Movie m = new Movie(
+                        c.getInt(id),
+                        c.getString(img),
+                        c.getString(title),
+                        c.getString(overview),
+                        c.getString(vote),
+                        c.getString(releaseDate));
+                favourites.add(m);
+            }
+            c.close();
+        }
+        mAdapter.setMovies(favourites);
+        mAdapter.notifyDataSetChanged();
     }
 
     private class GetMovieList implements AsyncTaskResult<Movie[]>

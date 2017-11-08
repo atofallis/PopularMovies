@@ -2,6 +2,7 @@ package com.tofallis.popularmovies.ui;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -46,8 +47,10 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mReleaseDate;
     @BindView(R.id.reviews)
     TextView mReviews;
+    @BindView(R.id.trailerTitle)
+    TextView mTrailerTitle;
 
-    int mMovieId;
+    Movie mMovie;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,78 +58,94 @@ public class MovieDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movie_detail);
         ButterKnife.bind(this);
 
-        mMovieId = getIntent().getIntExtra(Movie.ID, 0);
+        mMovie = new Movie(
+                getIntent().getIntExtra(Movie.ID, 0),
+                getIntent().getStringExtra(Movie.IMG_URL),
+                getIntent().getStringExtra(Movie.TITLE),
+                getIntent().getStringExtra(Movie.OVERVIEW),
+                getIntent().getStringExtra(Movie.VOTE),
+                getIntent().getStringExtra(Movie.RELEASE_DATE)
+        );
+
+        // get current favourite state from Content Provider query
+        checkFavouriteState();
 
         mToggleFavourite.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(FavouritesContract.FavouritesTable.COL_MOVIE_ID, mMovieId);
+                contentValues.put(FavouritesContract.FavouritesTable.COL_MOVIE_ID, mMovie.getId());
+                contentValues.put(FavouritesContract.FavouritesTable.COL_IMG_URL, mMovie.getImageUrl());
+                contentValues.put(FavouritesContract.FavouritesTable.COL_TITLE, mMovie.getOriginalTitle());
+                contentValues.put(FavouritesContract.FavouritesTable.COL_OVERVIEW, mMovie.getOverview());
+                contentValues.put(FavouritesContract.FavouritesTable.COL_VOTE, mMovie.getVoteAverage());
+                contentValues.put(FavouritesContract.FavouritesTable.COL_RELEASE_DATE, mMovie.getReleaseDate());
                 Uri uri;
-                if (((ToggleButton)view).isChecked()) {
+                if (((ToggleButton) view).isChecked()) {
                     uri = getContentResolver().insert(FavouritesContract.CONTENT_URI, contentValues);
-                    if(uri != null) {
-                        Toast.makeText(getBaseContext(), "Added to favourites. ID:" + mMovieId, Toast.LENGTH_LONG).show();
+                    if (uri != null) {
+                        Toast.makeText(getBaseContext(), "Added to favourites. ID:" + mMovie.getId(), Toast.LENGTH_LONG).show();
                     }
                 } else {
-                    uri = FavouritesContract.CONTENT_URI.buildUpon().appendPath(Integer.toString(mMovieId)).build();
+                    uri = FavouritesContract.CONTENT_URI.buildUpon().appendPath(Integer.toString(mMovie.getId())).build();
                     int deleted = getContentResolver().delete(uri, null, null);
-                    if(deleted > 0) {
+                    if (deleted > 0) {
                         Toast.makeText(getBaseContext(), "Removed from favourites", Toast.LENGTH_LONG).show();
                     }
                 }
             }
         });
 
-        Picasso.with(this).load(getIntent().getStringExtra(Movie.IMG_URL)).into(mImageView);
-        mOriginalTitle.setText(getIntent().getStringExtra(Movie.TITLE) + "\n\n\n");
-        mOverview.setText(getIntent().getStringExtra(Movie.OVERVIEW) + "\n\n\n");
-        mVoteAverage.setText(getIntent().getStringExtra(Movie.VOTE) + "\n\n\n");
-        mReleaseDate.setText(getIntent().getStringExtra(Movie.RELEASE_DATE) + "\n\n\n");
+        Picasso.with(this).load(mMovie.getImageUrl()).into(mImageView);
+        mOriginalTitle.setText(mMovie.getOriginalTitle() + "\n\n\n");
+        mOverview.setText(mMovie.getOverview() + "\n\n\n");
+        mVoteAverage.setText(mMovie.getVoteAverage() + "\n\n\n");
+        mReleaseDate.setText(mMovie.getReleaseDate() + "\n\n\n");
 
         loadTrailerData();
         loadReviewData();
     }
 
     private void loadTrailerData() {
-        URL url = NetworkUtils.getTrailers(mMovieId);
+        URL url = NetworkUtils.getTrailers(mMovie.getId());
         new TrailerListRequest(new MovieDetailActivity.GetTrailerList()).execute(url);
     }
 
-    private class GetTrailerList implements AsyncTaskResult<Trailer[]>
-    {
+    private class GetTrailerList implements AsyncTaskResult<Trailer[]> {
         @Override
         public void onTaskCompleted(final Trailer[] result) {
-            if(result != null) {
+            if (result != null) {
+                mTrailerTitle.setText("Click video icon for trailer!");
                 mTrailer.setVisibility(View.VISIBLE);
                 mTrailer.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         // play the first trailer
-                        startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("http://youtube.com/watch?v=" + result[0].getKey())));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://youtube.com/watch?v=" + result[0].getKey())));
                     }
                 });
             } else {
+                mTrailerTitle.setText("(No trailer available)");
                 Log.d(this.getClass().getName(), "No movie trailers for this movie");
             }
         }
     }
 
     private void loadReviewData() {
-        URL url = NetworkUtils.getReviews(mMovieId);
+        URL url = NetworkUtils.getReviews(mMovie.getId());
         new ReviewListRequest(new MovieDetailActivity.GetReviewList()).execute(url);
     }
 
-    private class GetReviewList implements AsyncTaskResult<Review[]>
-    {
+    private class GetReviewList implements AsyncTaskResult<Review[]> {
         @Override
         public void onTaskCompleted(final Review[] result) {
             StringBuilder sb = new StringBuilder();
-            sb.append("Reviews:\n\n");
-            if(result != null) {
-                for(Review review : result) {
+            sb.append("Reviews: ");
+            if (result != null && result.length > 0) {
+                for (Review review : result) {
+                    sb.append("\n\n");
                     sb.append(review.getAuthor() + ":\n\n");
-                    sb.append(review.getContent() + "\n\n");
+                    sb.append(review.getContent());
                 }
             } else {
                 sb.append("None");
@@ -134,5 +153,16 @@ public class MovieDetailActivity extends AppCompatActivity {
             }
             mReviews.setText(sb.toString());
         }
+    }
+
+    private void checkFavouriteState() {
+        Uri uri = FavouritesContract.CONTENT_URI.buildUpon().appendPath(Integer.toString(mMovie.getId())).build();
+        Cursor c = getContentResolver().query(uri,
+                null,
+                Integer.toString(mMovie.getId()),
+                null,
+                null);
+        mToggleFavourite.setChecked(c != null && c.moveToNext());
+        c.close();
     }
 }

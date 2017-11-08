@@ -56,12 +56,18 @@
             </LinearLayout>
         </LinearLayout>
 
+        <TextView
+            android:id="@+id/trailerTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/trailer"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"/>
         <ImageView
             android:id="@+id/trailer"
             android:layout_width="100dp"
             android:layout_height="50dp"
             android:background="@android:drawable/presence_video_away"
-            android:contentDescription="@string/content_desc_trailer"
+            android:contentDescription="@string/trailer"
             android:visibility="gone"/>
 
         <TextView

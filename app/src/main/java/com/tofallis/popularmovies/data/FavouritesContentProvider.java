@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import static com.tofallis.popularmovies.data.FavouritesContract.FavouritesTable.COL_MOVIE_ID;
 import static com.tofallis.popularmovies.data.FavouritesContract.FavouritesTable.TABLE_NAME;
 
 public class FavouritesContentProvider extends ContentProvider {
@@ -21,7 +22,7 @@ public class FavouritesContentProvider extends ContentProvider {
     private static final UriMatcher sMatcher = buildUriMatcher();
 
     public static UriMatcher buildUriMatcher() {
-        if(sMatcher == null) {
+        if (sMatcher == null) {
             // Initialize a UriMatcher with no matches by passing in NO_MATCH to the constructor
             UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
             uriMatcher.addURI(FavouritesContract.AUTHORITY, FavouritesContract.PATH_FAVOURITES, FAVOURITES);
@@ -39,8 +40,43 @@ public class FavouritesContentProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(@NonNull Uri uri, @Nullable String[] strings, @Nullable String s, @Nullable String[] strings1, @Nullable String s1) {
-        return null;
+    public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
+                        @Nullable String[] selectionArgs,
+                        @Nullable String sortOrder) {
+        final SQLiteDatabase db = mFavouritesDbHelper.getReadableDatabase();
+        int match = sMatcher.match(uri);
+        Cursor returnCursor;
+
+        switch (match) {
+            case FAVOURITES:
+                returnCursor = db.query(TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            case FAVOURITES_WITH_ID:
+                String id = uri.getPathSegments().get(1);
+                // Selection is the ID column = ?, and the Selection args = the row ID from the URI
+                String mSelection = COL_MOVIE_ID + "=?";
+                String[] mSelectionArgs = new String[]{id};
+
+                returnCursor = db.query(TABLE_NAME,
+                        projection,
+                        mSelection,
+                        mSelectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        returnCursor.setNotificationUri(getContext().getContentResolver(), uri);
+        return returnCursor;
     }
 
     @Nullable
@@ -60,7 +96,7 @@ public class FavouritesContentProvider extends ContentProvider {
         switch (match) {
             case FAVOURITES:
                 long id = db.insert(TABLE_NAME, null, contentValues);
-                if ( id > 0 ) {
+                if (id > 0) {
                     returnUri = ContentUris.withAppendedId(FavouritesContract.CONTENT_URI, id);
                 } else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);

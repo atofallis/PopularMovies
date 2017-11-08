@@ -4,5 +4,5 @@
     <string name="sortByTopRated">Sort Top Rated</string>
     <string name="showFavourites">Load Favourites</string>
     <string name="reviews">Reviews</string>
-    <string name="content_desc_trailer">Trailer</string>
+    <string name="trailer">Trailer</string>
 </resources>
