@@ -120,7 +120,8 @@ public class FavouritesContentProvider extends ContentProvider {
             // Handle the single item case, recognized by the ID included in the URI path
             case FAVOURITES_WITH_ID:
                 String id = uri.getPathSegments().get(1);
-                deleted = db.delete(TABLE_NAME, "_id=?", new String[]{id});
+                String mSelection = COL_MOVIE_ID + "=?";
+                deleted = db.delete(TABLE_NAME, mSelection, new String[]{id});
                 break;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);

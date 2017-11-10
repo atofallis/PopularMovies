@@ -28,11 +28,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
@@ -110,7 +112,10 @@ public final class NetworkUtils {
     public static String getResponseFromHttpUrl(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         try {
-            InputStream in = urlConnection.getInputStream();
+            URLConnection c = url.openConnection();
+            c.setConnectTimeout(5000);
+            c.setReadTimeout(10000);
+            BufferedReader in = new BufferedReader(new InputStreamReader(c.getInputStream()));
 
             Scanner scanner = new Scanner(in);
             scanner.useDelimiter("\\A");
@@ -171,7 +176,8 @@ public final class NetworkUtils {
             JSONObject trailer = trailerArray.getJSONObject(i);
             trailers[i] = new Trailer(
                     trailer.getString(Trailer.ID),
-                    trailer.getString(Trailer.KEY)
+                    trailer.getString(Trailer.KEY),
+                    trailer.getString(Trailer.NAME)
             );
         }
 

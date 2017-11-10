@@ -1,11 +1,12 @@
 package com.tofallis.popularmovies.ui;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,12 +20,14 @@ import com.tofallis.popularmovies.data.FavouritesContract;
 import com.tofallis.popularmovies.data.Movie;
 import com.tofallis.popularmovies.data.Review;
 import com.tofallis.popularmovies.data.Trailer;
+import com.tofallis.popularmovies.data.TrailerAdapter;
 import com.tofallis.popularmovies.network.AsyncTaskResult;
 import com.tofallis.popularmovies.network.NetworkUtils;
 import com.tofallis.popularmovies.network.ReviewListRequest;
 import com.tofallis.popularmovies.network.TrailerListRequest;
 
 import java.net.URL;
+import java.util.Arrays;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,8 +36,6 @@ public class MovieDetailActivity extends AppCompatActivity {
 
     @BindView(R.id.movieImage)
     ImageView mImageView;
-    @BindView(R.id.trailer)
-    ImageView mTrailer;
     @BindView(R.id.toggleFavourite)
     ToggleButton mToggleFavourite;
     @BindView(R.id.original_title)
@@ -47,10 +48,11 @@ public class MovieDetailActivity extends AppCompatActivity {
     TextView mReleaseDate;
     @BindView(R.id.reviews)
     TextView mReviews;
-    @BindView(R.id.trailerTitle)
-    TextView mTrailerTitle;
+    @BindView(R.id.trailers)
+    RecyclerView mTrailers;
 
     Movie mMovie;
+    TrailerAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +68,10 @@ public class MovieDetailActivity extends AppCompatActivity {
                 getIntent().getStringExtra(Movie.VOTE),
                 getIntent().getStringExtra(Movie.RELEASE_DATE)
         );
+
+        mAdapter = new TrailerAdapter(this);
+        mTrailers.setAdapter(mAdapter);
+        mTrailers.setLayoutManager(new LinearLayoutManager(this));
 
         // get current favourite state from Content Provider query
         checkFavouriteState();
@@ -91,6 +97,8 @@ public class MovieDetailActivity extends AppCompatActivity {
                     int deleted = getContentResolver().delete(uri, null, null);
                     if (deleted > 0) {
                         Toast.makeText(getBaseContext(), "Removed from favourites", Toast.LENGTH_LONG).show();
+                    } else {
+                        Log.e(this.getClass().getName(), "Failed to delete. result: " + deleted + " Uri: " + uri.toString());
                     }
                 }
             }
@@ -115,18 +123,10 @@ public class MovieDetailActivity extends AppCompatActivity {
         @Override
         public void onTaskCompleted(final Trailer[] result) {
             if (result != null) {
-                mTrailerTitle.setText("Click video icon for trailer!");
-                mTrailer.setVisibility(View.VISIBLE);
-                mTrailer.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // play the first trailer
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://youtube.com/watch?v=" + result[0].getKey())));
-                    }
-                });
+                mAdapter.setTrailers(Arrays.asList(result));
+                mAdapter.notifyDataSetChanged();
             } else {
-                mTrailerTitle.setText("(No trailer available)");
-                Log.d(this.getClass().getName(), "No movie trailers for this movie");
+                Log.e(this.getClass().getName(), "No trailers available");
             }
         }
     }

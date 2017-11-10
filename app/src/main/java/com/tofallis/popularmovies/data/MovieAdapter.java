@@ -18,6 +18,8 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     private Context mContext;
+    // store list of Movies from the api query.
+    private List<Movie> mMovies = new ArrayList<>();
 
     public List<Movie> getMovies() {
         return mMovies;
@@ -26,9 +28,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
     public void setMovies(List<Movie> movies) {
         mMovies = movies;
     }
-
-    // store list of Movies from the api query.
-    private List<Movie> mMovies = new ArrayList<>();
 
     public MovieAdapter(Context context) {
         mContext = context;
