@@ -33,6 +33,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private static final String SORT_BY = "SORT_BY";
+    private static final String RV_FIRST_ITEM = "RV_FIRST_ITEM";
+
     @BindView(R.id.textView)
     TextView mTextView;
     @BindView(R.id.rvMovies)
@@ -52,12 +54,12 @@ public class MainActivity extends AppCompatActivity {
 
         setRecyclerViewLayoutManager(getResources().getConfiguration());
 
-        if(savedInstanceState != null && savedInstanceState.getString(SORT_BY) != null) {
+        if (savedInstanceState != null && savedInstanceState.getString(SORT_BY) != null) {
             try {
                 mCurrentSort = MovieListDisplay.valueOf(savedInstanceState.getString(SORT_BY));
                 Log.d(TAG, "onCreate. Using mCurrentSort from bundle: " + mCurrentSort.name());
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Unexpected sort by value. Exception:" + e.getMessage() );
+                Log.e(TAG, "Unexpected sort by value. Exception:" + e.getMessage());
             }
         } else {
             Log.d(TAG, "onCreate. mCurrentSort: " + mCurrentSort.name());
@@ -76,19 +78,36 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         Log.d(TAG, "onSaveInstanceState. mCurrentSort: " + mCurrentSort.name());
         outState.putString(SORT_BY, mCurrentSort.name());
+
+        RecyclerView.LayoutManager layoutManager = mMoviePosters.getLayoutManager();
+        if (layoutManager != null && layoutManager instanceof GridLayoutManager) {
+            outState.putInt(RV_FIRST_ITEM, ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition());
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        Integer scrollTo = savedInstanceState.getInt(RV_FIRST_ITEM);
+        RecyclerView.LayoutManager layoutManager = mMoviePosters.getLayoutManager();
+        if (layoutManager != null && scrollTo != null) {
+            int count = layoutManager.getChildCount();
+            if (scrollTo != RecyclerView.NO_POSITION && scrollTo < count) {
+                layoutManager.scrollToPosition(scrollTo);
+            }
+        }
     }
 
     private void setRecyclerViewLayoutManager(Configuration newConfig) {
-        if(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             mMoviePosters.setLayoutManager(new GridLayoutManager(this, 3));
-        }
-        else{
+        } else {
             mMoviePosters.setLayoutManager(new GridLayoutManager(this, 5));
         }
     }
 
     private void loadMovieData(MovieListDisplay movieListDisplay) {
-        if(movieListDisplay == MovieListDisplay.FAVOURITES) {
+        if (movieListDisplay == MovieListDisplay.FAVOURITES) {
             // load from contentProvider
             getFavourites();
         } else {
@@ -106,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                 null);
         List<Movie> favourites = new ArrayList<>();
 
-        if(c!=null) {
+        if (c != null) {
             int id = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_MOVIE_ID);
             int img = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_IMG_URL);
             int title = c.getColumnIndex(FavouritesContract.FavouritesTable.COL_TITLE);
@@ -130,12 +149,11 @@ public class MainActivity extends AppCompatActivity {
         mAdapter.notifyDataSetChanged();
     }
 
-    private class GetMovieList implements AsyncTaskResult<Movie[]>
-    {
+    private class GetMovieList implements AsyncTaskResult<Movie[]> {
         @Override
         public void onTaskCompleted(Movie[] result) {
             mTextView.setText("");
-            if(result != null) {
+            if (result != null) {
                 mAdapter.setMovies(Arrays.asList(result));
                 mAdapter.notifyDataSetChanged();
             } else {
@@ -161,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         mTextView.setText("");
-        switch(item.getItemId()) {
+        switch (item.getItemId()) {
             case R.id.sortByMostPopular: {
                 loadMovieData(MovieListDisplay.POPULARITY);
                 return true;

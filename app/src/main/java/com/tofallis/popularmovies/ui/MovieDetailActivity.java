@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,6 +35,10 @@ import butterknife.ButterKnife;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
+    private static final String SCROLL_POS = "SCROLL_POS";
+
+    @BindView(R.id.movieScrollView)
+    NestedScrollView mScrollView;
     @BindView(R.id.movieImage)
     ImageView mImageView;
     @BindView(R.id.toggleFavourite)
@@ -112,6 +117,25 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         loadTrailerData();
         loadReviewData();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putIntArray("SCROLL_POS",
+                new int[]{mScrollView.getScrollX(), mScrollView.getScrollY()});
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        final int[] position = savedInstanceState.getIntArray(SCROLL_POS);
+        if (position != null)
+            mScrollView.post(new Runnable() {
+                public void run() {
+                    mScrollView.scrollTo(position[0], position[1]);
+                }
+            });
     }
 
     private void loadTrailerData() {
