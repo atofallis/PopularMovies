@@ -18,8 +18,6 @@ public class FavouritesContract {
     // TaskEntry content URI = base content URI + path
     public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVOURITES).build();
 
-    public static final Uri CONTENT_URI_ITEM = BASE_CONTENT_URI.buildUpon().appendPath(PATH_FAVOURITES).appendPath("#").build();
-
     public static final class FavouritesTable implements BaseColumns {
         public static final String TABLE_NAME = "favourites";
         public static final String COL_MOVIE_ID = "movie_id";

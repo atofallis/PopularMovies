@@ -3,6 +3,7 @@ package com.tofallis.popularmovies.ui;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +34,10 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getName();
     private static final String SORT_BY = "SORT_BY";
+    private static final String RV_STATE = "RV_STATE";
     private static final String RV_FIRST_ITEM = "RV_FIRST_ITEM";
+    private static final String RV_MOVIES = "RV_MOVIES";
+    private static Movie[] mMovies;
 
     @BindView(R.id.textView)
     TextView mTextView;
@@ -54,17 +58,51 @@ public class MainActivity extends AppCompatActivity {
 
         setRecyclerViewLayoutManager(getResources().getConfiguration());
 
-        if (savedInstanceState != null && savedInstanceState.getString(SORT_BY) != null) {
-            try {
-                mCurrentSort = MovieListDisplay.valueOf(savedInstanceState.getString(SORT_BY));
-                Log.d(TAG, "onCreate. Using mCurrentSort from bundle: " + mCurrentSort.name());
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Unexpected sort by value. Exception:" + e.getMessage());
-            }
-        } else {
-            Log.d(TAG, "onCreate. mCurrentSort: " + mCurrentSort.name());
+        if (!restoreViewState(savedInstanceState)) {
+            loadMovieData(mCurrentSort);
         }
-        loadMovieData(mCurrentSort);
+    }
+
+    private boolean restoreViewState(Bundle savedInstanceState) {
+
+        boolean populated = false;
+        if (savedInstanceState != null) {
+            if (savedInstanceState.getString(SORT_BY) != null) {
+                try {
+                    mCurrentSort = MovieListDisplay.valueOf(savedInstanceState.getString(SORT_BY));
+                    Log.d(TAG, "Using mCurrentSort from bundle: " + mCurrentSort.name());
+                } catch (IllegalArgumentException e) {
+                    Log.e(TAG, "Unexpected sort by value. Exception:" + e.getMessage());
+                }
+            } else {
+                Log.d(TAG, "mCurrentSort: " + mCurrentSort.name());
+            }
+
+            mMovies = (Movie[]) savedInstanceState.getParcelableArray(RV_MOVIES);
+            if (mMovies != null) {
+                Log.d(TAG, "movies set from state");
+                mAdapter.setMovies(Arrays.asList(mMovies));
+                populated = true;
+            }
+
+            RecyclerView.LayoutManager layoutManager = mMoviePosters.getLayoutManager();
+            if (layoutManager == null) {
+                throw new IllegalStateException("Layout manager not initialised");
+            }
+
+            Parcelable rvState = savedInstanceState.getParcelable(RV_STATE);
+            if (rvState != null) {
+                layoutManager.onRestoreInstanceState(rvState);
+            }
+            Integer scrollTo = savedInstanceState.getInt(RV_FIRST_ITEM);
+            int count = layoutManager.getItemCount();
+            Log.d(TAG, "scrollTo: " + scrollTo);
+            Log.d(TAG, "layoutManager.getItemCount(): " + count);
+            if (scrollTo != null && scrollTo != RecyclerView.NO_POSITION && scrollTo < count) {
+                layoutManager.scrollToPosition(scrollTo);
+            }
+        }
+        return populated;
     }
 
     @Override
@@ -81,27 +119,29 @@ public class MainActivity extends AppCompatActivity {
 
         RecyclerView.LayoutManager layoutManager = mMoviePosters.getLayoutManager();
         if (layoutManager != null && layoutManager instanceof GridLayoutManager) {
-            outState.putInt(RV_FIRST_ITEM, ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition());
+            outState.putParcelable(RV_STATE, layoutManager.onSaveInstanceState());
+            final int pos = ((GridLayoutManager) layoutManager).findFirstVisibleItemPosition();
+            outState.putInt(RV_FIRST_ITEM, pos);
+            Log.d(TAG, "onSaveInstanceState. RV_FIRST_ITEM: " + pos);
+        }
+
+        if(mMovies != null) {
+            outState.putParcelableArray(RV_MOVIES, mMovies);
         }
     }
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        Integer scrollTo = savedInstanceState.getInt(RV_FIRST_ITEM);
-        RecyclerView.LayoutManager layoutManager = mMoviePosters.getLayoutManager();
-        if (layoutManager != null && scrollTo != null) {
-            int count = layoutManager.getChildCount();
-            if (scrollTo != RecyclerView.NO_POSITION && scrollTo < count) {
-                layoutManager.scrollToPosition(scrollTo);
-            }
-        }
+        restoreViewState(savedInstanceState);
     }
 
     private void setRecyclerViewLayoutManager(Configuration newConfig) {
         if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.d(TAG, "setRecyclerViewLayoutManager:: Portrait");
             mMoviePosters.setLayoutManager(new GridLayoutManager(this, 3));
         } else {
+            Log.d(TAG, "setRecyclerViewLayoutManager:: Landscape");
             mMoviePosters.setLayoutManager(new GridLayoutManager(this, 5));
         }
     }
@@ -111,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
             // load from contentProvider
             getFavourites();
         } else {
+            Log.d(TAG, "Loading movies from network");
             URL url = NetworkUtils.getMovies(movieListDisplay);
             new MovieListRequest(new GetMovieList()).execute(url);
         }
@@ -118,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getFavourites() {
+        Log.d(TAG, "Loading movies from favourites");
         Cursor c = getContentResolver().query(FavouritesContract.CONTENT_URI,
                 null,
                 null,
@@ -154,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         public void onTaskCompleted(Movie[] result) {
             mTextView.setText("");
             if (result != null) {
+                mMovies = result;
                 mAdapter.setMovies(Arrays.asList(result));
                 mAdapter.notifyDataSetChanged();
             } else {
