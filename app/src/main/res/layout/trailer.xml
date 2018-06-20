@@ -14,8 +14,8 @@
 
     <ImageView
         android:id="@+id/trailerIcon"
-        android:layout_width="100dp"
-        android:layout_height="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:background="@android:drawable/presence_video_away"
         android:contentDescription="@string/trailer"/>

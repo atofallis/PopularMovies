@@ -1,5 +1,6 @@
 package com.tofallis.popularmovies.ui;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -29,6 +30,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -64,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean restoreViewState(Bundle savedInstanceState) {
-
         boolean populated = false;
         if (savedInstanceState != null) {
             if (savedInstanceState.getString(SORT_BY) != null) {
@@ -98,8 +100,9 @@ public class MainActivity extends AppCompatActivity {
             int count = layoutManager.getItemCount();
             Log.d(TAG, "scrollTo: " + scrollTo);
             Log.d(TAG, "layoutManager.getItemCount(): " + count);
-            if (scrollTo != null && scrollTo != RecyclerView.NO_POSITION && scrollTo < count) {
+            if (scrollTo != null && scrollTo != NO_POSITION && scrollTo < count) {
                 layoutManager.scrollToPosition(scrollTo);
+                Log.d(TAG, "Scrolling to mMovies[scrollTo]: " + mMovies[scrollTo].getOriginalTitle());
             }
         }
         return populated;
@@ -139,12 +142,29 @@ public class MainActivity extends AppCompatActivity {
     private void setRecyclerViewLayoutManager(Configuration newConfig) {
         if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             Log.d(TAG, "setRecyclerViewLayoutManager:: Portrait");
-            mMoviePosters.setLayoutManager(new GridLayoutManager(this, 3));
+            mMoviePosters.setLayoutManager(new MoviesLayoutManager(this, 3));
         } else {
             Log.d(TAG, "setRecyclerViewLayoutManager:: Landscape");
-            mMoviePosters.setLayoutManager(new GridLayoutManager(this, 5));
+            mMoviePosters.setLayoutManager(new MoviesLayoutManager(this, 5));
         }
     }
+
+    private class MoviesLayoutManager extends GridLayoutManager {
+
+        public MoviesLayoutManager(Context context, int spanCount) {
+            super(context, spanCount);
+        }
+
+        @Override
+        public void onLayoutCompleted(RecyclerView.State state) {
+            super.onLayoutCompleted(state);
+            final int pos = findFirstVisibleItemPosition();
+            if(pos != NO_POSITION && mMovies != null) {
+                Log.d(TAG, "Updated first visible item pos: " + pos);
+                Log.d(TAG, "Updated first visible item: " + mMovies[pos].getOriginalTitle());
+            }
+        }
+    };
 
     private void loadMovieData(MovieListDisplay movieListDisplay) {
         if (movieListDisplay == MovieListDisplay.FAVOURITES) {
